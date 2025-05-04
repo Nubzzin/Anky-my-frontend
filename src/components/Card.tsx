@@ -7,10 +7,7 @@ export default function Card({ id, title, cards, dueToday }) {
                 <h6 className="text-muted">Active Deck</h6>
                 <p className="mb-1">
                     <strong>
-                        <Link
-                            to={`/decks/${id}`}
-                            className="text-decoration-none"
-                        >
+                        <Link to={`/${id}`} className="text-decoration-none">
                             {title} - {cards} cards
                         </Link>
                     </strong>

@@ -1,19 +1,22 @@
 import { Routes, Route } from "react-router-dom";
-import "./App.css";
+import "./css/App.css";
 
-import MainPage from "./components/MainPage";
-import Dashboard from "./components/Dashboard";
+import MainPage from "./pages/MainPage";
+import Dashboard from "./pages/Dashboard";
+import Stats from "./pages/Stats";
+import DeckPage from "./pages/DeckPage";
+import Reviews from "./pages/Reviews";
 
 export default function App() {
     return (
-        <>
-            <Routes>
-                <Route path="/" element={<MainPage />}>
-                    <Route index element={<Dashboard />} />
-                    <Route path="/stats" element={<></>} />
-                    <Route path="/add-card" element={<></>} />
-                </Route>
-            </Routes>
-        </>
+        <Routes>
+            <Route path="/" element={<MainPage />}>
+                <Route index element={<Dashboard />} />
+                <Route path="/stats" element={<Stats />} />
+                <Route path="/add-card" element={<></>} />
+            </Route>
+            <Route path="/reviews" element={<Reviews />} />
+            <Route path="/:id" element={<DeckPage />} />
+        </Routes>
     );
 }

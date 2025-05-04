@@ -1,14 +1,10 @@
 import { Link } from "react-router-dom";
 import Card from "../components/Card";
-import { getDecks } from "../services/api";
-
-const decks = getDecks();
+import { getDecks, totalCards } from "../services/api";
 
 export default function Dashboard() {
-    let totalCards = 0;
-    for (const deck of decks) {
-        totalCards += deck.cards.length;
-    }
+    const decks = getDecks();
+    const tCards = totalCards();
 
     return (
         <>
@@ -21,7 +17,7 @@ export default function Dashboard() {
                         <div className="card p-4 shadow-sm">
                             <h5 className="card-title">Today's Reviews</h5>
                             <p className="card-text">
-                                You have <strong>{totalCards} cards</strong> to
+                                You have <strong>{tCards} cards</strong> to
                                 review across{" "}
                                 <strong>{decks.length} decks</strong>.
                             </p>

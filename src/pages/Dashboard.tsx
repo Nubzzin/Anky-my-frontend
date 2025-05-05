@@ -1,10 +1,19 @@
 import { Link } from "react-router-dom";
 import Card from "../components/Card";
-import { getDecks, totalCards } from "../services/api";
+import { Deck, getDecks, totalCards } from "../services/api";
+import { useEffect, useState } from "react";
 
 export default function Dashboard() {
-    const decks = getDecks();
-    const tCards = totalCards();
+    const [decks, setDecks] = useState<Deck[]>([]);
+    const [tCards, setTCards] = useState(0);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            setDecks(await getDecks());
+            setTCards(await totalCards());
+        };
+        fetchData();
+    }, []);
 
     return (
         <>

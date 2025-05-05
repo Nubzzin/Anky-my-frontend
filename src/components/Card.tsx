@@ -1,6 +1,16 @@
 import { Link } from "react-router-dom";
 
-export default function Card({ id, title, cards, dueToday }) {
+export default function Card({
+    id,
+    title,
+    cards,
+    dueToday,
+}: {
+    id: string | number;
+    title: string;
+    cards: number;
+    dueToday: number;
+}) {
     return (
         <div className="col-md-4">
             <div className="card p-3 shadow-sm">

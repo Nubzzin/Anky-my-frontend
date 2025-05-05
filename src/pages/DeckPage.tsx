@@ -1,88 +1,103 @@
 import { Link, useParams } from "react-router-dom";
-import { getDeck, Deck } from "../services/api";
+import {
+    CardState,
+    Deck,
+    TodaysCards,
+    getDeck,
+    getTodaysCards,
+} from "../services/api";
+import ErrorPage from "../pages/ErrorPage";
 import { useEffect, useState } from "react";
 
-export default function DeckPage() {
-    const [index, setIndex] = useState(0);
-    const [flip, setFlip] = useState(false);
+enum StruggleLevel {
+    AGAIN,
+    HARD,
+    GOOD,
+    EASY,
+}
 
-    let deck;
-    {
-        const { id } = useParams();
-        deck = getDeck(Number(id));
-        if (!deck) {
-            return <div>Deck not found</div>;
-        }
+export default function DeckPage() {
+    const [flip, setFlip] = useState(false);
+    const [index, setIndex] = useState(0);
+    const [started, setStarted] = useState(false);
+    const [finished, setFinished] = useState(false);
+
+    const [deck, setDeck] = useState<Deck>({} as Deck);
+    const [todaysCards, setTodaysCards] = useState<TodaysCards>({
+        cards: [],
+        reviews: [],
+        review: false,
+    });
+
+    const { id } = useParams();
+    if (!id) {
+        return <ErrorPage />;
     }
 
-    const handleFlip = () => {
-        setFlip(!flip);
-    };
-
-    const handleStruggle = (n: number) => {
-        deck.cards[index].struggle = n;
-        setIndex(index + 1);
-        setFlip(false);
-        if (
-            deck.cards[index].struggle !== 0 &&
-            deck.cards[index].seenToday === false
-        ) {
-            deck.cards[index].seenToday = true;
-            deck.cards.push(deck.cards[index]);
-        } else {
-            deck.cards[index].seenToday = true;
-        }
-
-        switch (deck.cards[index].struggle) {
-            case 0:
-                deck.cards[index].days = 8;
-                break;
-            case 1:
-                deck.cards[index].days = 3;
-                break;
-            case 2:
-                deck.cards[index].days = 1;
-                break;
-            case 3:
-                deck.cards[index].days = 0;
-                break;
-        }
-
-        if (index === deck.cards.length - 1) {
-            clean(deck);
-            console.log(deck.cards);
-        }
-    };
-
-    const clean = (deck: Deck) => {
-        // TODO: DEBUG ONLY
-        deck.cards.forEach((card) => {
-            if (card.seenToday) {
-                card.seenToday = false;
+    useEffect(() => {
+        const fetchData = async () => {
+            setDeck(await getDeck(id));
+            if (!deck) {
+                return <ErrorPage />;
             }
-        });
-        while (deck.cards.length > deck.size) {
-            deck.cards.shift();
+
+            setTodaysCards(await getTodaysCards(id));
+        };
+        fetchData();
+    }, []);
+
+    const nextHandler = (state: CardState) => {
+        if (index + 1 < deck.cards.length) {
+            setIndex(index + 1);
+        } else {
+            setFinished(true);
         }
+        setFlip(false);
     };
 
     return (
         <div className="container text-center py-5">
             <h2 className="mb-4">Deck {deck.name}</h2>
 
-            {deck.cards.length > index ? (
+            {!started ? (
+                <>
+                    <h1>Let's Start</h1>
+                    <h3>Today's new cards: {todaysCards.cards.length}</h3>
+                    <h3 className="mb-4">
+                        Today's due cards:{" "}
+                        {
+                            todaysCards.cards.filter(
+                                (index) =>
+                                    deck.cards[index].cardState ===
+                                        CardState.DUE &&
+                                    deck.cards[index].interval < 1,
+                            ).length
+                        }
+                    </h3>
+                    <div>
+                        <button
+                            className="btn btn-accent"
+                            onClick={() => setStarted(true)}
+                        >
+                            Start
+                        </button>
+                    </div>
+                </>
+            ) : !finished ? (
                 !flip ? (
                     <>
                         <div className="mb-4">
                             <h4>
-                                <strong>{deck.cards[index].front}</strong>
+                                <strong>
+                                    {deck.cards[todaysCards.cards[index]].front}
+                                </strong>
                             </h4>
                         </div>
 
                         <div>
                             <button
                                 className="btn btn-outline-light"
-                                onClick={handleFlip}
+                                onClick={() => setFlip(true)}
                             >
                                 Show answer
                             </button>
@@ -92,35 +107,37 @@ export default function DeckPage() {
                     <>
                         <div className="mb-4">
                             <h4>
-                                <strong>{deck.cards[index].front}</strong>
+                                <strong>
+                                    {deck.cards[todaysCards.cards[index]].front}
+                                </strong>
                             </h4>
                         </div>
                         <hr className="mb-4" />
                         <div className="mb-4">
-                            <h5>{deck.cards[index].back}</h5>
+                            <h5>{deck.cards[todaysCards.cards[index]].back}</h5>
                         </div>
                         <div>
                             <button
                                 className="btn btn-outline-danger mx-1"
-                                onClick={() => handleStruggle(3)}
+                                onClick={() => nextHandler(CardState.AGAIN)}
                             >
                                 Again
                             </button>
                             <button
                                 className="btn btn-outline-warning mx-1"
-                                onClick={() => handleStruggle(2)}
+                                onClick={() => nextHandler(CardState.HARD)}
                             >
                                 Hard
                             </button>
                             <button
                                 className="btn btn-outline-success mx-1"
-                                onClick={() => handleStruggle(1)}
+                                onClick={() => nextHandler(CardState.GOOD)}
                             >
                                 Good
                             </button>
                             <button
                                 className="btn btn-outline-info mx-1"
-                                onClick={() => handleStruggle(0)}
+                                onClick={() => nextHandler(CardState.EASY)}
                             >
                                 Easy
                             </button>

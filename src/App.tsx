@@ -13,8 +13,8 @@ export default function App() {
             <Route path="/" element={<MainPage />}>
                 <Route index element={<Dashboard />} />
                 <Route path="/stats" element={<Stats />} />
-                <Route path="/add-card" element={<></>} />
             </Route>
+            <Route path="/add-card" element={<></>} />
             <Route path="/reviews" element={<Reviews />} />
             <Route path="/:id" element={<DeckPage />} />
         </Routes>

@@ -44,7 +44,7 @@ export default function DeckPage() {
                 deck.cards[index].days = 1;
                 break;
             case 3:
-                deck.cards[index].days = 1;
+                deck.cards[index].days = 0;
                 break;
         }
 
@@ -72,17 +72,22 @@ export default function DeckPage() {
 
             {deck.cards.length > index ? (
                 !flip ? (
-                    <div className="mb-4">
-                        <h4>
-                            <strong>{deck.cards[index].front}</strong>
-                        </h4>
-                        <button
-                            className="btn btn-outline-light"
-                            onClick={handleFlip}
-                        >
-                            Show answer
-                        </button>
-                    </div>
+                    <>
+                        <div className="mb-4">
+                            <h4>
+                                <strong>{deck.cards[index].front}</strong>
+                            </h4>
+                        </div>
+
+                        <div>
+                            <button
+                                className="btn btn-outline-light"
+                                onClick={handleFlip}
+                            >
+                                Show answer
+                            </button>
+                        </div>
+                    </>
                 ) : (
                     <>
                         <div className="mb-4">
@@ -94,40 +99,45 @@ export default function DeckPage() {
                         <div className="mb-4">
                             <h5>{deck.cards[index].back}</h5>
                         </div>
-
-                        <button
-                            className="btn btn-outline-light"
-                            onClick={() => handleStruggle(3)}
-                        >
-                            Again
-                        </button>
-                        <button
-                            className="btn btn-outline-light"
-                            onClick={() => handleStruggle(2)}
-                        >
-                            Hard
-                        </button>
-                        <button
-                            className="btn btn-outline-light"
-                            onClick={() => handleStruggle(1)}
-                        >
-                            Good
-                        </button>
-                        <button
-                            className="btn btn-outline-light"
-                            onClick={() => handleStruggle(0)}
-                        >
-                            Easy
-                        </button>
+                        <div>
+                            <button
+                                className="btn btn-outline-danger mx-1"
+                                onClick={() => handleStruggle(3)}
+                            >
+                                Again
+                            </button>
+                            <button
+                                className="btn btn-outline-warning mx-1"
+                                onClick={() => handleStruggle(2)}
+                            >
+                                Hard
+                            </button>
+                            <button
+                                className="btn btn-outline-success mx-1"
+                                onClick={() => handleStruggle(1)}
+                            >
+                                Good
+                            </button>
+                            <button
+                                className="btn btn-outline-info mx-1"
+                                onClick={() => handleStruggle(0)}
+                            >
+                                Easy
+                            </button>
+                        </div>
                     </>
                 )
             ) : (
                 <>
-                    <h3>Finished</h3>
-                    <Link to="/" className="btn btn-outline-light">
-                        Return
-                    </Link>
-                    {console.log(deck.cards)}
+                    <div className="mb-4">
+                        <h3>Finished</h3>
+                        <h4>Nothing to see here!</h4>
+                    </div>
+                    <div>
+                        <Link to="/" className="btn btn-outline-light">
+                            Return
+                        </Link>
+                    </div>
                 </>
             )}
         </div>

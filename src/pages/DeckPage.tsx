@@ -21,6 +21,7 @@ export default function DeckPage() {
     const [index, setIndex] = useState(0);
     const [started, setStarted] = useState(false);
     const [finished, setFinished] = useState(false);
+    const [error, setError] = useState(false);
 
     const [deck, setDeck] = useState<Deck>({} as Deck);
     const [todaysCards, setTodaysCards] = useState<TodaysCards>({
@@ -30,44 +31,79 @@ export default function DeckPage() {
     });
 
     const { id } = useParams();
-    if (!id) {
-        return <ErrorPage />;
-    }
 
     useEffect(() => {
         const fetchData = async () => {
-            setDeck(await getDeck(id));
-            if (!deck) {
-                return <ErrorPage />;
+            if (!id) {
+                setError(true);
+                return;
             }
 
-            setTodaysCards(await getTodaysCards(id));
+            const deckEv = await getDeck(id);
+            if (!deckEv) {
+                setError(true);
+                return;
+            }
+            setDeck(deckEv);
+
+            const todayCardsEv = await getTodaysCards(id);
+            if (!todayCardsEv) {
+                setError(true);
+                return;
+            }
+            setTodaysCards(todayCardsEv);
         };
         fetchData();
-    }, []);
+    }, [id]);
 
     const nextHandler = (state: StruggleLevel) => {
-        switch (state) {
-            case StruggleLevel.EASY:
-                deck.cards[todaysCards.cards[index]].interval *= 2.0;
-                break;
-            case StruggleLevel.GOOD:
-                deck.cards[todaysCards.cards[index]].interval *= 1.5;
-                break;
-            case StruggleLevel.HARD:
-                deck.cards[todaysCards.cards[index]].interval *= 1.0;
-                break;
-            case StruggleLevel.AGAIN:
-                deck.cards[todaysCards.cards[index]].interval *= 0.5;
-                break;
-        }
-        if (index + 1 < deck.cards.length) {
+        if (deck.cards[todaysCards.cards[index]].cardState === CardState.NEW)
+            switch (state) {
+                case StruggleLevel.EASY:
+                    deck.cards[todaysCards.cards[index]].interval *= 2.0;
+                    break;
+                case StruggleLevel.GOOD:
+                    deck.cards[todaysCards.cards[index]].interval *= 1.5;
+                    todaysCards.cards.push(todaysCards.cards[index]);
+                    break;
+                case StruggleLevel.HARD:
+                    deck.cards[todaysCards.cards[index]].interval *= 1.2;
+                    todaysCards.cards.push(todaysCards.cards[index]);
+                    break;
+                case StruggleLevel.AGAIN:
+                    deck.cards[todaysCards.cards[index]].interval *= 0.5;
+                    todaysCards.cards.push(todaysCards.cards[index]);
+                    break;
+            }
+        else
+            switch (state) {
+                case StruggleLevel.EASY:
+                    deck.cards[todaysCards.cards[index]].interval *= 2.0;
+                    break;
+                case StruggleLevel.GOOD:
+                    deck.cards[todaysCards.cards[index]].interval *= 1.5;
+                    break;
+                case StruggleLevel.HARD:
+                    deck.cards[todaysCards.cards[index]].interval *= 1.2;
+                    break;
+                case StruggleLevel.AGAIN:
+                    todaysCards.cards.push(todaysCards.cards[index]);
+                    deck.cards[todaysCards.cards[index]].interval *= 0.5;
+                    break;
+            }
+        deck.cards[todaysCards.cards[index]].cardState = CardState.DUE;
+
+        if (index + 1 < todaysCards.cards.length) {
             setIndex(index + 1);
         } else {
             setFinished(true);
         }
         setFlip(false);
     };
+
+    if (error) {
+        return <ErrorPage />;
+    }
 
     return (
         <div className="container text-center py-5">
@@ -90,11 +126,14 @@ export default function DeckPage() {
                     </h3>
                     <div>
                         <button
-                            className="btn btn-accent"
+                            className="btn btn-accent mx-2"
                             onClick={() => setStarted(true)}
                         >
                             Start
                         </button>
+                        <Link to="/" className="btn btn-accent mx-2">
+                            Cancel
+                        </Link>
                     </div>
                 </>
             ) : !finished ? (

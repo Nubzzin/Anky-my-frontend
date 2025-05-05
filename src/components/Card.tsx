@@ -4,12 +4,10 @@ export default function Card({
     id,
     title,
     cards,
-    dueToday,
 }: {
-    id: string | number;
+    id: string;
     title: string;
     cards: number;
-    dueToday: number;
 }) {
     return (
         <div className="col-md-4">
@@ -22,7 +20,7 @@ export default function Card({
                         </Link>
                     </strong>
                 </p>
-                <p className="text-muted small">{dueToday} due today</p>
+                {/* <p className="text-muted small">{dueToday} due today</p> */}
             </div>
         </div>
     );

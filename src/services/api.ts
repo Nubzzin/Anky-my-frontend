@@ -121,11 +121,13 @@ const decks: Deck[] = [
     },
 ];
 
-export async function getDecks() {
+export async function getDecks(): Promise<Deck[]> {
     return decks;
 }
 
-export async function getDeck(id: string) {
+export async function getDeck(
+    id: string | undefined,
+): Promise<Deck | undefined> {
     const deck = decks.find((deck) => deck.id === id);
     if (deck) {
         return deck;
@@ -133,11 +135,13 @@ export async function getDeck(id: string) {
     return {} as Deck;
 }
 
-export async function totalCards() {
+export async function totalCards(): Promise<number> {
     return decks.reduce((total, deck) => total + deck.cards.length, 0);
 }
 
-export async function getTodaysCards(id: string) {
+export async function getTodaysCards(
+    id: string | undefined,
+): Promise<TodaysCards | undefined> {
     const deck = decks.find((deck) => deck.id === id);
     if (!deck) {
         return {} as TodaysCards;

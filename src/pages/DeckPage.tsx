@@ -46,7 +46,21 @@ export default function DeckPage() {
         fetchData();
     }, []);
 
-    const nextHandler = (state: CardState) => {
+    const nextHandler = (state: StruggleLevel) => {
+        switch (state) {
+            case StruggleLevel.EASY:
+                deck.cards[todaysCards.cards[index]].interval *= 2.0;
+                break;
+            case StruggleLevel.GOOD:
+                deck.cards[todaysCards.cards[index]].interval *= 1.5;
+                break;
+            case StruggleLevel.HARD:
+                deck.cards[todaysCards.cards[index]].interval *= 1.0;
+                break;
+            case StruggleLevel.AGAIN:
+                deck.cards[todaysCards.cards[index]].interval *= 0.5;
+                break;
+        }
         if (index + 1 < deck.cards.length) {
             setIndex(index + 1);
         } else {
@@ -119,25 +133,25 @@ export default function DeckPage() {
                         <div>
                             <button
                                 className="btn btn-outline-danger mx-1"
-                                onClick={() => nextHandler(CardState.AGAIN)}
+                                onClick={() => nextHandler(StruggleLevel.AGAIN)}
                             >
                                 Again
                             </button>
                             <button
                                 className="btn btn-outline-warning mx-1"
-                                onClick={() => nextHandler(CardState.HARD)}
+                                onClick={() => nextHandler(StruggleLevel.HARD)}
                             >
                                 Hard
                             </button>
                             <button
                                 className="btn btn-outline-success mx-1"
-                                onClick={() => nextHandler(CardState.GOOD)}
+                                onClick={() => nextHandler(StruggleLevel.GOOD)}
                             >
                                 Good
                             </button>
                             <button
                                 className="btn btn-outline-info mx-1"
-                                onClick={() => nextHandler(CardState.EASY)}
+                                onClick={() => nextHandler(StruggleLevel.EASY)}
                             >
                                 Easy
                             </button>

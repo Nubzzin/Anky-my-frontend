@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { getDeck } from "../services/api";
+import { getDeck, Deck } from "../services/api";
 import { useEffect, useState } from "react";
 
 export default function DeckPage() {
@@ -54,7 +54,7 @@ export default function DeckPage() {
         }
     };
 
-    const clean = (deck) => {
+    const clean = (deck: Deck) => {
         // TODO: DEBUG ONLY
         deck.cards.forEach((card) => {
             if (card.seenToday) {

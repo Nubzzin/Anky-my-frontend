@@ -1,4 +1,21 @@
-const decks = [
+export interface Card {
+    id: number;
+    front: string;
+    back: string;
+    struggle: number;
+    days: number;
+    seenToday: boolean;
+}
+
+export interface Deck {
+    id: number;
+    name: string;
+    cards: Card[];
+    dueToday: number;
+    size: number;
+}
+
+const decks: Deck[] = [
     {
         id: 1,
         name: "Rust",

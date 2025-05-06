@@ -1,20 +1,14 @@
 import { Link, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import {
     CardState,
     Deck,
     TodaysCards,
+    StruggleLevel,
     getDeck,
     getTodaysCards,
 } from "../services/api";
 import ErrorPage from "../pages/ErrorPage";
-import { useEffect, useState } from "react";
-
-enum StruggleLevel {
-    AGAIN,
-    HARD,
-    GOOD,
-    EASY,
-}
 
 export default function DeckPage() {
     const [flip, setFlip] = useState(false);
@@ -23,7 +17,7 @@ export default function DeckPage() {
     const [finished, setFinished] = useState(false);
     const [error, setError] = useState(false);
 
-    const [deck, setDeck] = useState<Deck>({} as Deck);
+    const [deck, setDeck] = useState<Deck>();
     const [todaysCards, setTodaysCards] = useState<TodaysCards>({
         cards: [],
         reviews: [],
@@ -56,42 +50,29 @@ export default function DeckPage() {
         fetchData();
     }, [id]);
 
+    if (error) {
+        return <ErrorPage />;
+    }
+
     const nextHandler = (state: StruggleLevel) => {
-        if (deck.cards[todaysCards.cards[index]].cardState === CardState.NEW)
-            switch (state) {
-                case StruggleLevel.EASY:
-                    deck.cards[todaysCards.cards[index]].interval *= 2.0;
-                    break;
-                case StruggleLevel.GOOD:
-                    deck.cards[todaysCards.cards[index]].interval *= 1.5;
-                    todaysCards.cards.push(todaysCards.cards[index]);
-                    break;
-                case StruggleLevel.HARD:
-                    deck.cards[todaysCards.cards[index]].interval *= 1.2;
-                    todaysCards.cards.push(todaysCards.cards[index]);
-                    break;
-                case StruggleLevel.AGAIN:
-                    deck.cards[todaysCards.cards[index]].interval *= 0.5;
-                    todaysCards.cards.push(todaysCards.cards[index]);
-                    break;
+        if (
+            (state === StruggleLevel.GOOD ||
+                state === StruggleLevel.HARD ||
+                state === StruggleLevel.AGAIN) &&
+            (deck?.cards[todaysCards.cards[index]].cardState ===
+                CardState.NEW ||
+                deck?.cards[todaysCards.cards[index]].cardState ===
+                    CardState.DUE)
+        ) {
+            deck.cards[todaysCards.cards[index]].interval *= state;
+            todaysCards.cards.push(todaysCards.cards[index]);
+            deck.cards[todaysCards.cards[index]].cardState = CardState.REVIEW;
+        } else {
+            if (deck) {
+                deck.cards[todaysCards.cards[index]].interval *= state;
+                deck.cards[todaysCards.cards[index]].cardState = CardState.DUE;
             }
-        else
-            switch (state) {
-                case StruggleLevel.EASY:
-                    deck.cards[todaysCards.cards[index]].interval *= 2.0;
-                    break;
-                case StruggleLevel.GOOD:
-                    deck.cards[todaysCards.cards[index]].interval *= 1.5;
-                    break;
-                case StruggleLevel.HARD:
-                    deck.cards[todaysCards.cards[index]].interval *= 1.2;
-                    break;
-                case StruggleLevel.AGAIN:
-                    todaysCards.cards.push(todaysCards.cards[index]);
-                    deck.cards[todaysCards.cards[index]].interval *= 0.5;
-                    break;
-            }
-        deck.cards[todaysCards.cards[index]].cardState = CardState.DUE;
+        }
 
         if (index + 1 < todaysCards.cards.length) {
             setIndex(index + 1);
@@ -101,13 +82,9 @@ export default function DeckPage() {
         setFlip(false);
     };
 
-    if (error) {
-        return <ErrorPage />;
-    }
-
     return (
         <div className="container text-center py-5">
-            <h2 className="mb-4">Deck {deck.name}</h2>
+            <h2 className="mb-4">Deck {deck?.name}</h2>
 
             {!started ? (
                 <>
@@ -118,9 +95,9 @@ export default function DeckPage() {
                         {
                             todaysCards.cards.filter(
                                 (index) =>
-                                    deck.cards[index].cardState ===
+                                    deck?.cards[index].cardState ===
                                         CardState.DUE &&
-                                    deck.cards[index].interval < 1,
+                                    deck?.cards[index].interval < 1,
                             ).length
                         }
                     </h3>
@@ -142,7 +119,10 @@ export default function DeckPage() {
                         <div className="mb-4">
                             <h4>
                                 <strong>
-                                    {deck.cards[todaysCards.cards[index]].front}
+                                    {
+                                        deck?.cards[todaysCards.cards[index]]
+                                            .front
+                                    }
                                 </strong>
                             </h4>
                         </div>
@@ -161,13 +141,18 @@ export default function DeckPage() {
                         <div className="mb-4">
                             <h4>
                                 <strong>
-                                    {deck.cards[todaysCards.cards[index]].front}
+                                    {
+                                        deck?.cards[todaysCards.cards[index]]
+                                            .front
+                                    }
                                 </strong>
                             </h4>
                         </div>
                         <hr className="mb-4" />
                         <div className="mb-4">
-                            <h5>{deck.cards[todaysCards.cards[index]].back}</h5>
+                            <h5>
+                                {deck?.cards[todaysCards.cards[index]].back}
+                            </h5>
                         </div>
                         <div>
                             <button

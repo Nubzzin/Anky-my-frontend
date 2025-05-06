@@ -4,7 +4,7 @@ import { Deck, getDecks, totalCards } from "../services/api";
 import { useEffect, useState } from "react";
 
 export default function Dashboard() {
-    const [decks, setDecks] = useState<Deck[]>([]);
+    const [decks, setDecks] = useState<Deck[]>();
     const [tCards, setTCards] = useState(0);
 
     useEffect(() => {
@@ -28,7 +28,7 @@ export default function Dashboard() {
                             <p className="card-text">
                                 You have <strong>{tCards} cards</strong> to
                                 review across{" "}
-                                <strong>{decks.length} decks</strong>.
+                                <strong>{decks?.length} decks</strong>.
                             </p>
                             <Link to="/reviews" className="btn btn-accent mt-3">
                                 Start Reviewing
@@ -52,13 +52,12 @@ export default function Dashboard() {
                 </div>
 
                 <div className="row g-4 mt-4">
-                    {decks.map((deck) => (
+                    {decks?.map((deck) => (
                         <Card
                             key={deck.id}
                             id={deck.id}
                             title={deck.name}
                             cards={deck.cards.length}
-                            dueToday={deck.dueToday}
                         />
                     ))}
                 </div>

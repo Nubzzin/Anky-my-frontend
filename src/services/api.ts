@@ -24,6 +24,13 @@ export enum CardState {
     DUE,
 }
 
+export enum StruggleLevel {
+    AGAIN = 1,
+    HARD = 1.3,
+    GOOD = 1.6,
+    EASY = 2.5,
+}
+
 const decks: Deck[] = [
     {
         id: "1",

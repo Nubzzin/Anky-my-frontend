@@ -12,10 +12,11 @@ export interface Deck {
     cards: Card[];
 }
 
-export interface TodaysCards {
-    cards: number[];
-    reviews: number[];
-    review: boolean;
+export interface CardsToday {
+    todays: Card[];
+    new: Card[];
+    review: Card[];
+    due: Card[];
 }
 
 export enum CardState {
@@ -26,8 +27,8 @@ export enum CardState {
 
 export enum StruggleLevel {
     AGAIN = 1,
-    HARD = 1.3,
-    GOOD = 1.6,
+    HARD = 1.2,
+    GOOD = 1.4,
     EASY = 2.5,
 }
 
@@ -146,30 +147,58 @@ export async function totalCards(): Promise<number> {
     return decks.reduce((total, deck) => total + deck.cards.length, 0);
 }
 
-export async function getTodaysCards(
-    id: string | undefined,
-): Promise<TodaysCards | undefined> {
+export async function deckTotalEachCards(
+    id: string,
+): Promise<CardsToday | undefined> {
     const deck = decks.find((deck) => deck.id === id);
     if (!deck) {
-        return {} as TodaysCards;
+        return undefined;
     }
-    const indexes: number[] = [];
+    const cards: CardsToday = {
+        todays: getTodaysCards(id),
+        new: [],
+        review: [],
+        due: [],
+    };
 
-    for (let i = 0; i < deck.cards.length; i++) {
-        const card = deck.cards[i];
+    const maxNew: number = 20;
+    const maxReview: number = 40;
+    const maxDue: number = 200;
+    deck.cards.forEach((card) => {
+        if (card.cardState === CardState.NEW && maxNew >= cards.new.length) {
+            cards.new.push(card);
+        } else if (
+            card.cardState === CardState.REVIEW &&
+            maxReview >= cards.review.length
+        ) {
+            cards.review.push(card);
+        } else if (
+            card.cardState === CardState.DUE &&
+            maxDue >= cards.due.length
+        ) {
+            cards.due.push(card);
+        }
+    });
+    return cards;
+}
+
+function getTodaysCards(id: string | undefined): Card[] {
+    const deck = decks.find((deck) => deck.id === id);
+    if (!deck) {
+        return [];
+    }
+    const indexes: Card[] = [];
+
+    deck.cards.forEach((card) => {
         if (
             card.cardState === CardState.NEW ||
             (card.cardState === CardState.DUE && card.interval <= 1) ||
             card.cardState === CardState.REVIEW
         ) {
-            indexes.push(i);
+            indexes.push(card);
         }
-    }
-
-    const todays: TodaysCards = {
-        cards: indexes,
-        reviews: [],
-        review: false,
-    };
-    return todays;
+    });
+    return indexes;
 }
+
+// function

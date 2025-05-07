@@ -3,10 +3,10 @@ import { useEffect, useState } from "react";
 import {
     CardState,
     Deck,
-    TodaysCards,
     StruggleLevel,
     getDeck,
-    getTodaysCards,
+    deckTotalEachCards,
+    CardsToday,
 } from "../services/api";
 import ErrorPage from "../pages/ErrorPage";
 
@@ -17,11 +17,12 @@ export default function DeckPage() {
     const [finished, setFinished] = useState(false);
     const [error, setError] = useState(false);
 
-    const [deck, setDeck] = useState<Deck>();
-    const [todaysCards, setTodaysCards] = useState<TodaysCards>({
-        cards: [],
-        reviews: [],
-        review: false,
+    const [deck, setDeck] = useState<Deck>({} as Deck);
+    const [cardsToday, setCardsToday] = useState<CardsToday>({
+        todays: [],
+        new: [],
+        review: [],
+        due: [],
     });
 
     const { id } = useParams();
@@ -40,15 +41,23 @@ export default function DeckPage() {
             }
             setDeck(deckEv);
 
-            const todayCardsEv = await getTodaysCards(id);
-            if (!todayCardsEv) {
+            const cardsTodayEv = await deckTotalEachCards(id);
+            if (!cardsTodayEv?.todays) {
                 setError(true);
                 return;
             }
-            setTodaysCards(todayCardsEv);
+            setCardsToday(cardsTodayEv);
+            console.log(cardsTodayEv);
         };
         fetchData();
-    }, [id]);
+    }, []);
+
+    useEffect(() => {
+        const sendData = async () => {
+            // TODO
+        };
+        sendData();
+    }, [cardsToday]);
 
     if (error) {
         return <ErrorPage />;
@@ -59,27 +68,24 @@ export default function DeckPage() {
             (state === StruggleLevel.GOOD ||
                 state === StruggleLevel.HARD ||
                 state === StruggleLevel.AGAIN) &&
-            (deck?.cards[todaysCards.cards[index]].cardState ===
-                CardState.NEW ||
-                deck?.cards[todaysCards.cards[index]].cardState ===
-                    CardState.DUE)
+            (cardsToday.todays[index].cardState === CardState.NEW ||
+                cardsToday.todays[index].cardState === CardState.DUE)
         ) {
-            deck.cards[todaysCards.cards[index]].interval *= state;
-            todaysCards.cards.push(todaysCards.cards[index]);
-            deck.cards[todaysCards.cards[index]].cardState = CardState.REVIEW;
+            cardsToday.todays[index].interval *= state;
+            cardsToday.todays.push(cardsToday.todays[index]);
+            deck.cards[index].cardState = CardState.REVIEW;
         } else {
-            if (deck) {
-                deck.cards[todaysCards.cards[index]].interval *= state;
-                deck.cards[todaysCards.cards[index]].cardState = CardState.DUE;
-            }
+            cardsToday.todays[index].interval *= state;
+            cardsToday.todays[index].cardState = CardState.DUE;
         }
 
-        if (index + 1 < todaysCards.cards.length) {
+        if (index + 1 < cardsToday.todays.length) {
             setIndex(index + 1);
         } else {
             setFinished(true);
         }
         setFlip(false);
+        setCardsToday({ ...cardsToday });
     };
 
     return (
@@ -89,17 +95,10 @@ export default function DeckPage() {
             {!started ? (
                 <>
                     <h1>Let's Start</h1>
-                    <h3>Today's new cards: {todaysCards.cards.length}</h3>
+                    <h3>Today's new cards: {cardsToday.new.length}</h3>
+                    <h3>Today's due cards: {cardsToday.due.length}</h3>
                     <h3 className="mb-4">
-                        Today's due cards:{" "}
-                        {
-                            todaysCards.cards.filter(
-                                (index) =>
-                                    deck?.cards[index].cardState ===
-                                        CardState.DUE &&
-                                    deck?.cards[index].interval < 1,
-                            ).length
-                        }
+                        Today's review cards: {cardsToday.review.length}
                     </h3>
                     <div>
                         <button
@@ -119,10 +118,7 @@ export default function DeckPage() {
                         <div className="mb-4">
                             <h4>
                                 <strong>
-                                    {
-                                        deck?.cards[todaysCards.cards[index]]
-                                            .front
-                                    }
+                                    {cardsToday.todays[index].front}
                                 </strong>
                             </h4>
                         </div>
@@ -135,24 +131,32 @@ export default function DeckPage() {
                                 Show answer
                             </button>
                         </div>
+
+                        {cardsToday.todays[index].cardState ===
+                            CardState.NEW && (
+                            <button className="btn btn-primary disabled"></button>
+                        )}
+                        {cardsToday.todays[index].cardState ===
+                            CardState.DUE && (
+                            <button className="btn btn-success disabled"></button>
+                        )}
+                        {cardsToday.todays[index].cardState ===
+                            CardState.REVIEW && (
+                            <button className="btn btn-danger disabled"></button>
+                        )}
                     </>
                 ) : (
                     <>
                         <div className="mb-4">
                             <h4>
                                 <strong>
-                                    {
-                                        deck?.cards[todaysCards.cards[index]]
-                                            .front
-                                    }
+                                    {cardsToday.todays[index].front}
                                 </strong>
                             </h4>
                         </div>
                         <hr className="mb-4" />
                         <div className="mb-4">
-                            <h5>
-                                {deck?.cards[todaysCards.cards[index]].back}
-                            </h5>
+                            <h5>{cardsToday.todays[index].back}</h5>
                         </div>
                         <div>
                             <button

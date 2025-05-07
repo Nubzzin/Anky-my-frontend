@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Deck, CardState, getDeck } from "../services/api";
+import { deckTotalEachCards, CardsToday } from "../services/api";
 import { useEffect, useState } from "react";
 
 import ErrorPage from "../pages/ErrorPage";
@@ -13,18 +13,17 @@ export default function Card({
     title: string;
     cards: number;
 }) {
-    const [deck, setDeck] = useState<Deck>();
+    const [cardsToday, setCardsToday] = useState<CardsToday>();
     const [error, setError] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchData = async () => {
-            const deckEv = await getDeck(id);
-            if (!deckEv) {
+            const cardsTodayEv = await deckTotalEachCards(id);
+            if (!cardsTodayEv) {
                 setError(true);
-                console.error("Deck not found");
                 return;
             }
-            setDeck(deckEv);
+            setCardsToday(cardsTodayEv);
         };
         fetchData();
     }, [id]);
@@ -45,16 +44,7 @@ export default function Card({
                     </strong>
                 </p>
                 <p className="text-muted small">
-                    {deck?.cards.reduce((total, card) => {
-                        if (
-                            card.cardState === CardState.DUE &&
-                            card.interval <= 1
-                        ) {
-                            return total + 1;
-                        }
-                        return total;
-                    }, 0)}{" "}
-                    due today
+                    {cardsToday?.due.length || 0} due today
                 </p>
             </div>
         </div>

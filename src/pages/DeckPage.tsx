@@ -4,11 +4,13 @@ import {
     CardState,
     Deck,
     StruggleLevel,
+    CardsToday,
     getDeck,
     deckTotalEachCards,
-    CardsToday,
+    updateDeck,
 } from "../services/api";
 import ErrorPage from "../pages/ErrorPage";
+import FinishedPage from "./FinishedPage";
 
 export default function DeckPage() {
     const [flip, setFlip] = useState(false);
@@ -19,6 +21,7 @@ export default function DeckPage() {
 
     const [deck, setDeck] = useState<Deck>({} as Deck);
     const [cardsToday, setCardsToday] = useState<CardsToday>({
+        id: "",
         todays: [],
         new: [],
         review: [],
@@ -53,8 +56,8 @@ export default function DeckPage() {
     }, []);
 
     useEffect(() => {
-        const sendData = async () => {
-            // TODO
+        const sendData = () => {
+            updateDeck(cardsToday);
         };
         sendData();
     }, [cardsToday]);
@@ -62,6 +65,13 @@ export default function DeckPage() {
     if (error) {
         return <ErrorPage />;
     }
+
+    const startProcess = () => {
+        setStarted(true);
+        if (cardsToday.todays.length === 0) {
+            setFinished(true);
+        }
+    };
 
     const nextHandler = (state: StruggleLevel) => {
         if (
@@ -72,11 +82,13 @@ export default function DeckPage() {
                 cardsToday.todays[index].cardState === CardState.DUE)
         ) {
             cardsToday.todays[index].interval *= state;
-            cardsToday.todays.push(cardsToday.todays[index]);
             deck.cards[index].cardState = CardState.REVIEW;
         } else {
             cardsToday.todays[index].interval *= state;
             cardsToday.todays[index].cardState = CardState.DUE;
+            cardsToday.todays.filter(
+                (card) => card.id === String(cardsToday.todays[index]),
+            );
         }
 
         if (index + 1 < cardsToday.todays.length) {
@@ -95,15 +107,19 @@ export default function DeckPage() {
             {!started ? (
                 <>
                     <h1>Let's Start</h1>
-                    <h3>Today's new cards: {cardsToday.new.length}</h3>
-                    <h3>Today's due cards: {cardsToday.due.length}</h3>
-                    <h3 className="mb-4">
+                    <h3 className="text-primary">
+                        Today's new cards: {cardsToday.new.length}
+                    </h3>
+                    <h3 className="text-success">
+                        Today's due cards: {cardsToday.due.length}
+                    </h3>
+                    <h3 className="text-danger mb-4">
                         Today's review cards: {cardsToday.review.length}
                     </h3>
                     <div>
                         <button
                             className="btn btn-accent mx-2"
-                            onClick={() => setStarted(true)}
+                            onClick={startProcess}
                         >
                             Start
                         </button>
@@ -187,17 +203,7 @@ export default function DeckPage() {
                     </>
                 )
             ) : (
-                <>
-                    <div className="mb-4">
-                        <h3>Finished</h3>
-                        <h4>Nothing to see here!</h4>
-                    </div>
-                    <div>
-                        <Link to="/" className="btn btn-outline-light">
-                            Return
-                        </Link>
-                    </div>
-                </>
+                <FinishedPage />
             )}
         </div>
     );

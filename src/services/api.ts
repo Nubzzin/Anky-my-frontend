@@ -13,6 +13,7 @@ export interface Deck {
 }
 
 export interface CardsToday {
+    id: string;
     todays: Card[];
     new: Card[];
     review: Card[];
@@ -155,6 +156,7 @@ export async function deckTotalEachCards(
         return undefined;
     }
     const cards: CardsToday = {
+        id: id,
         todays: getTodaysCards(id),
         new: [],
         review: [],
@@ -174,11 +176,23 @@ export async function deckTotalEachCards(
             cards.review.push(card);
         } else if (
             card.cardState === CardState.DUE &&
-            maxDue >= cards.due.length
+            maxDue >= cards.due.length &&
+            card.interval < 1
         ) {
             cards.due.push(card);
         }
     });
+    const forReview: Card[] = [];
+    cards.todays.forEach((card) => {
+        if (
+            card.cardState === CardState.NEW ||
+            card.cardState === CardState.DUE
+        ) {
+            forReview.push(card);
+        }
+    });
+    const cardsReview: Card[] = [...cards.todays, ...forReview];
+    cards.todays = cardsReview;
     return cards;
 }
 
@@ -192,7 +206,7 @@ function getTodaysCards(id: string | undefined): Card[] {
     deck.cards.forEach((card) => {
         if (
             card.cardState === CardState.NEW ||
-            (card.cardState === CardState.DUE && card.interval <= 1) ||
+            (card.cardState === CardState.DUE && card.interval < 1) ||
             card.cardState === CardState.REVIEW
         ) {
             indexes.push(card);
@@ -201,4 +215,17 @@ function getTodaysCards(id: string | undefined): Card[] {
     return indexes;
 }
 
-// function
+export function updateDeck(cardsToday: CardsToday): void {
+    const deck = decks.find((deck) => deck.id === cardsToday.id);
+    if (!deck) {
+        return;
+    }
+    deck.cards.forEach((cardDeck) => {
+        const card = cardsToday.todays.find((cardToday) => {
+            if (cardDeck.id === cardToday.id) {
+                return cardToday;
+            }
+        });
+        return card;
+    });
+}

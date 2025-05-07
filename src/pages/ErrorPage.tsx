@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function ErrorPage() {
     return (
         <div className="container d-flex flex-column justify-content-center align-items-center error-container text-center">
@@ -5,9 +7,9 @@ export default function ErrorPage() {
             <p className="lead mb-4">
                 Something went wrong. We're working to fix it.
             </p>
-            <a href="/" className="btn btn-outline-light">
+            <Link to="/" className="btn btn-outline-light">
                 Go Home
-            </a>
+            </Link>
         </div>
     );
 }

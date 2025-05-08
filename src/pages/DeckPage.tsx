@@ -10,7 +10,7 @@ import {
     updateDeck,
 } from "../services/api";
 import ErrorPage from "../pages/ErrorPage";
-import FinishedPage from "./FinishedPage";
+import FinishedPage from "../pages/FinishedPage";
 
 export default function DeckPage() {
     const [flip, setFlip] = useState(false);

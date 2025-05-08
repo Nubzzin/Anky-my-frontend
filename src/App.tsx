@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import Stats from "./pages/Stats";
 import DeckPage from "./pages/DeckPage";
 import Reviews from "./pages/Reviews";
+import AddCard from "./pages/AddCard";
 
 export default function App() {
     return (
@@ -14,7 +15,7 @@ export default function App() {
                 <Route index element={<Dashboard />} />
                 <Route path="/stats" element={<Stats />} />
             </Route>
-            <Route path="/add-card" element={<></>} />
+            <Route path="/add-card" element={<AddCard />} />
             <Route path="/reviews" element={<Reviews />} />
             <Route path="/:id" element={<DeckPage />} />
         </Routes>

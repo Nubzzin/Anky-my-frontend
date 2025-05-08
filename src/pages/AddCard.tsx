@@ -28,14 +28,14 @@ export default function AddCard() {
         return <ErrorPage />;
     }
 
-    const makeNewDeck = (e) => {
+    const makeNewDeck = (e: React.FormEvent) => {
         e.preventDefault();
         newDeck(deckName);
         setDeckName("");
         setUpdateDecks(!updateDecks);
     };
 
-    const addNewCard = (e) => {
+    const addNewCard = (e: React.FormEvent) => {
         e.preventDefault();
         newCard(selectValue, cardFront, cardBack);
         setCardFront("");

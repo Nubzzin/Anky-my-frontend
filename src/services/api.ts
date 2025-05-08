@@ -1,3 +1,5 @@
+import Card from "../components/Card";
+
 export interface Card {
     id: string;
     front: string;
@@ -421,6 +423,13 @@ const decks: Deck[] = [
                 interval: 1,
                 cardState: CardState.NEW,
             },
+            {
+                id: "21",
+                front: "What is the difference between 'new' and 'malloc' in C++?",
+                back: "'new' is an operator that allocates memory and calls the constructor, while 'malloc' is a function that only allocates memory.",
+                interval: 1,
+                cardState: CardState.NEW,
+            },
         ],
     },
     {
@@ -587,7 +596,7 @@ export async function deckTotalEachCards(
     const maxReview: number = 40;
     const maxDue: number = 200;
     deck.cards.forEach((card) => {
-        if (card.cardState === CardState.NEW && maxNew >= cards.new.length) {
+        if (card.cardState === CardState.NEW && maxNew > cards.new.length) {
             cards.new.push(card);
         } else if (
             card.cardState === CardState.REVIEW &&
@@ -648,4 +657,34 @@ export function updateDeck(cardsToday: CardsToday): void {
         });
         return card;
     });
+}
+
+export function newDeck(deckName: string) {
+    if (deckName.trim().length !== 0) {
+        decks.push({
+            id: String(
+                decks.reduce((total, deck) => total + Number(deck.id), 0),
+            ),
+            name: deckName,
+            cards: [],
+        } as Deck);
+    }
+}
+
+export function newCard(deckId: string, cardFront: string, cardBack: string) {
+    const deck = decks.find((deck) => deck.id === deckId);
+    if (!deck) {
+        return;
+    }
+    if (cardFront.trim().length !== 0 && cardBack.trim().length !== 0) {
+        deck.cards.push({
+            id: String(
+                deck.cards.reduce((total, card) => total + Number(card.id), 0),
+            ),
+            cardState: CardState.NEW,
+            front: cardFront,
+            back: cardBack,
+            interval: 1,
+        } as Card);
+    }
 }

@@ -613,10 +613,7 @@ export async function deckTotalEachCards(
     });
     const forReview: Card[] = [];
     cards.todays.forEach((card) => {
-        if (
-            card.cardState === CardState.NEW ||
-            card.cardState === CardState.DUE
-        ) {
+        if (card.cardState === CardState.NEW) {
             forReview.push(card);
         }
     });

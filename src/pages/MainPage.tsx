@@ -1,11 +1,11 @@
-import SidebarComponent from "../components/SideBarComponent";
+import Sidebar from "../components/SideBar";
 import { Outlet } from "react-router-dom";
 
 export default function MainPage() {
     return (
         <>
             <div className="layout">
-                <SidebarComponent />
+                <Sidebar />
                 {/* <!-- Main content --> */}
                 <div className="main">
                     <Outlet />
